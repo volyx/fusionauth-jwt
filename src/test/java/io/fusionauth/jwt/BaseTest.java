@@ -34,6 +34,12 @@ import static org.testng.Assert.fail;
  * @author Daniel DeGroff
  */
 public abstract class BaseTest {
+
+
+  static {
+    System.out.println("Mapper.isCustomMapper = " + Mapper.isCustomMapper);
+  }
+
   private static Map<String, Object> deepSort(Map<String, Object> response) {
     Map<String, Object> sorted = new TreeMap<>();
     response.forEach((key, value) -> {

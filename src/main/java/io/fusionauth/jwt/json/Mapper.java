@@ -32,9 +32,14 @@ import java.io.IOException;
  */
 public class Mapper {
   private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final CustomObjectMapper CUSTOM_OBJECT_MAPPER = new CustomObjectMapper();
+  public static final boolean isCustomMapper = Boolean.getBoolean("minimal.json");
 
   public static <T> T deserialize(byte[] bytes, Class<T> type) throws InvalidJWTException {
     try {
+      if (isCustomMapper) {
+        return CUSTOM_OBJECT_MAPPER.readValue(bytes, type);
+      }
       return OBJECT_MAPPER.readValue(bytes, type);
     } catch (IOException e) {
       throw new InvalidJWTException("The JWT could not be de-serialized.", e);
@@ -43,6 +48,9 @@ public class Mapper {
 
   public static byte[] prettyPrint(Object object) throws InvalidJWTException {
     try {
+      if (isCustomMapper) {
+        return CUSTOM_OBJECT_MAPPER.prettyPrint(object);
+      }
       return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsBytes(object);
     } catch (JsonProcessingException e) {
       throw new InvalidJWTException("The object could not be serialized.", e);
@@ -51,6 +59,9 @@ public class Mapper {
 
   public static byte[] serialize(Object object) throws InvalidJWTException {
     try {
+      if (isCustomMapper) {
+        return CUSTOM_OBJECT_MAPPER.writeValueAsBytes(object);
+      }
       return OBJECT_MAPPER.writeValueAsBytes(object);
     } catch (JsonProcessingException e) {
       throw new InvalidJWTException("The JWT could not be serialized.", e);
