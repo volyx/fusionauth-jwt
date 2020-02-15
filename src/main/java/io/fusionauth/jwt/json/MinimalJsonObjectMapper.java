@@ -14,118 +14,31 @@ import io.fusionauth.jwt.domain.Type;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CustomObjectMapper {
+public class MinimalJsonObjectMapper {
 
-	@SuppressWarnings("unchecked")
 	public <T> T readValue(byte[] src, Class<T> valueType) throws IOException {
 		try (final InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(src))) {
 			final JsonValue value = Json.parse(reader);
 			final JsonObject jsonObject = value.asObject();
 
 			if (valueType.equals(Header.class)) {
-				final Header header = new Header();
-				final JsonValue algName = jsonObject.get("alg");
-				if (algName != null && algName.isString()) {
-					header.algorithm = Algorithm.valueOf(algName.asString());
-					jsonObject.remove("alg");
-				}
-				final String typ = jsonObject.getString("typ", Type.JWT.name());
-				if (!typ.isEmpty()) {
-					header.type = Type.valueOf(typ);
-					jsonObject.remove("typ");
-				}
-				for (String propName : jsonObject.names()) {
-					final String propValue = jsonObject.getString(propName, "");
-					if (!propValue.isEmpty()) {
-						header.set(propName, propValue);
-					}
-				}
-				return (T) header;
+				return (T) readHeader(jsonObject);
 			} else if (valueType.equals(JWT.class)) {
-				final JWT jwt = new JWT();
-
-				final JsonValue audObject = jsonObject.get("aud");
-				if (audObject != null) {
-					if (audObject.isString()) {
-						jwt.audience = audObject.asString();
-					} else if (audObject.isArray()) {
-						List<String> audiences = new ArrayList<>();
-						for (JsonValue jsonValue : audObject.asArray()) {
-							audiences.add(jsonValue.asString());
-						}
-						jwt.audience = audiences;
-					}
-					jwt.otherClaims.remove("aud");
-				}
-
-				final JsonValue expObject = jsonObject.get("exp");
-				if (expObject != null) {
-					jwt.expiration = deserialize(expObject);
-					jwt.otherClaims.remove("exp");
-				}
-
-				final JsonValue iatObject = jsonObject.get("iat");
-				if (iatObject != null) {
-					jwt.issuedAt = deserialize(iatObject);
-					jwt.otherClaims.remove("iat");
-				}
-
-				final JsonValue issObject = jsonObject.get("iss");
-				if (issObject != null && issObject.isString()) {
-					jwt.issuer = issObject.asString();
-					jwt.otherClaims.remove("iss");
-				}
-
-				final JsonValue nbfObject = jsonObject.get("nbf");
-				if (nbfObject != null) {
-					jwt.notBefore = deserialize(nbfObject);
-					jwt.otherClaims.remove("nbf");
-				}
-
-				final JsonValue subObject = jsonObject.get("sub");
-				if (subObject != null && subObject.isString()) {
-					jwt.subject = subObject.asString();
-					jwt.otherClaims.remove("sub");
-				}
-
-				final JsonValue jtiObject = jsonObject.get("jti");
-				if (jtiObject != null && jtiObject.isString()) {
-					jwt.uniqueId = jtiObject.asString();
-					jwt.otherClaims.remove("jti");
-				}
-
-				for (String propName : jsonObject.names()) {
-					final JsonValue propValue = jsonObject.get(propName);
-					if (propValue != null) {
-						if (propValue.isString()) {
-							jwt.otherClaims.put(propName, propValue.asString());
-						}
-						if (propValue.isArray()) {
-							jwt.otherClaims.put(propName, propValue.asArray());
-						}
-						if (propValue.isBoolean()) {
-							jwt.otherClaims.put(propName, propValue.asBoolean());
-						}
-						if (propValue.isNumber()) {
-							try {
-								jwt.otherClaims.put(propName, propValue.asInt());
-							} catch (NumberFormatException nfe) {
-								jwt.otherClaims.put(propName, propValue.asLong());
-							}
-						}
-					}
-				}
-				return (T) jwt;
-			} if (valueType.equals(Map.class)) {
+				return (T) readJWT(jsonObject);
+			}
+			if (valueType.equals(Map.class)) {
 				Map<String, Object> map = new HashMap<>();
 				for (String propName : jsonObject.names()) {
 					map.put(propName, jsonObject.get(propName).toString());
@@ -134,6 +47,146 @@ public class CustomObjectMapper {
 			} else {
 				throw new UnsupportedOperationException("unsupported object type " + valueType.getSimpleName());
 			}
+		}
+	}
+
+	private static JWT readJWT(JsonObject jsonObject) throws IOException {
+		final JWT jwt = new JWT();
+
+		final JsonValue audObject = jsonObject.get("aud");
+		if (audObject != null) {
+			if (audObject.isString()) {
+				jwt.audience = audObject.asString();
+			} else if (audObject.isArray()) {
+				List<String> audiences = new ArrayList<>();
+				for (JsonValue jsonValue : audObject.asArray()) {
+					audiences.add(jsonValue.asString());
+				}
+				jwt.audience = audiences;
+			}
+			jsonObject.remove("aud");
+		}
+
+		final JsonValue expObject = jsonObject.get("exp");
+		if (expObject != null) {
+			jwt.expiration = deserialize(expObject);
+			jsonObject.remove("exp");
+		}
+
+		final JsonValue iatObject = jsonObject.get("iat");
+		if (iatObject != null) {
+			jwt.issuedAt = deserialize(iatObject);
+			jsonObject.remove("iat");
+		}
+
+		final JsonValue issObject = jsonObject.get("iss");
+		if (issObject != null && issObject.isString()) {
+			jwt.issuer = issObject.asString();
+			jsonObject.remove("iss");
+		}
+
+		final JsonValue nbfObject = jsonObject.get("nbf");
+		if (nbfObject != null) {
+			jwt.notBefore = deserialize(nbfObject);
+			jsonObject.remove("nbf");
+		}
+
+		final JsonValue subObject = jsonObject.get("sub");
+		if (subObject != null && subObject.isString()) {
+			jwt.subject = subObject.asString();
+			jsonObject.remove("sub");
+		}
+
+		final JsonValue jtiObject = jsonObject.get("jti");
+		if (jtiObject != null && jtiObject.isString()) {
+			jwt.uniqueId = jtiObject.asString();
+			jsonObject.remove("jti");
+		}
+
+
+		asMap(jsonObject, jwt.otherClaims);
+		return jwt;
+	}
+
+	private static Header readHeader(JsonObject jsonObject) {
+		final Header header = new Header();
+		final JsonValue algName = jsonObject.get("alg");
+		if (algName != null && algName.isString()) {
+			header.algorithm = Algorithm.valueOf(algName.asString());
+			jsonObject.remove("alg");
+		}
+		final String typ = jsonObject.getString("typ", Type.JWT.name());
+		if (!typ.isEmpty()) {
+			header.type = Type.valueOf(typ);
+			jsonObject.remove("typ");
+		}
+		for (String propName : jsonObject.names()) {
+			final String propValue = jsonObject.getString(propName, "");
+			if (!propValue.isEmpty()) {
+				header.set(propName, propValue);
+			}
+		}
+		return header;
+	}
+
+	private static void asMap(JsonObject jsonObject, Map<String, Object> map) {
+		for (String propName : jsonObject.names()) {
+			final JsonValue propValue = jsonObject.get(propName);
+			if (propValue != null) {
+				if (propValue.isString()) {
+					map.put(propName, propValue.asString());
+				}
+				if (propValue.isArray()) {
+					String[] array = new String[propValue.asArray().size()];
+					int i = 0;
+					for (JsonValue arrayValue : propValue.asArray()) {
+						array[i++] = arrayValue.asString();
+					}
+					map.put(propName, Arrays.asList(array));
+				}
+				if (propValue.isObject()) {
+					final JsonObject nested = propValue.asObject();
+					Map<String, Object> propMap = new HashMap<>();
+					for (String name : nested.names()) {
+						final JsonValue nestedValue = nested.get(name);
+						if (nestedValue.isObject()) {
+							Map<String, Object> nestedMap = new HashMap<>();
+							asMap(nestedValue.asObject(), nestedMap);
+							propMap.put(name, nestedMap);
+						}
+					}
+					map.put(propName, propMap);
+				}
+				if (propValue.isBoolean()) {
+					map.put(propName, propValue.asBoolean());
+				}
+				if (propValue.isNumber()) {
+					Object numberValue = asBigInteger(propValue);
+					if (numberValue == null) {
+						numberValue = asBigDecimal(propValue);
+					}
+
+					if (numberValue != null) {
+						map.put(propName, numberValue);
+					}
+				}
+			}
+		}
+	}
+
+	private static BigInteger asBigInteger(JsonValue propValue) {
+		try {
+			return new BigInteger(propValue.toString());
+		} catch (NumberFormatException nfe) {
+			return null;
+		}
+	}
+
+	private static BigDecimal asBigDecimal(JsonValue propValue) {
+		try {
+			return new BigDecimal(propValue.toString());
+		} catch (NumberFormatException nfe) {
+			return null;
 		}
 	}
 
@@ -206,7 +259,19 @@ public class CustomObjectMapper {
 					jsonObject.add(entry.getKey(), entry.getValue().toString());
 				}
 				if (entry.getValue() instanceof Boolean) {
-					jsonObject.add(entry.getKey(), entry.getValue().toString());
+					jsonObject.add(entry.getKey(), Json.value((Boolean) entry.getValue()));
+				}
+				if (entry.getValue() instanceof Integer) {
+					final Integer entryInt = (Integer) entry.getValue();
+					jsonObject.add(entry.getKey(), BigInteger.valueOf(entryInt).toString());
+				}
+				if (entry.getValue() instanceof Float) {
+					final Float entryFloat = (Float) entry.getValue();
+					jsonObject.add(entry.getKey(), BigDecimal.valueOf(entryFloat).toString());
+				}
+				if (entry.getValue() instanceof Double) {
+					final Double entryDouble = (Double) entry.getValue();
+					jsonObject.add(entry.getKey(), BigDecimal.valueOf(entryDouble).toString());
 				}
 			}
 		} else if (value instanceof JSONWebKey) {
@@ -289,7 +354,7 @@ public class CustomObjectMapper {
 		return jsonObject.toString(WriterConfig.PRETTY_PRINT).getBytes(StandardCharsets.UTF_8);
 	}
 
-	ZonedDateTime deserialize(JsonValue jp) throws IOException {
+	static ZonedDateTime deserialize(JsonValue jp) throws IOException {
 		long value;
 		if (jp.isNumber()) {
 			value = jp.asLong();
@@ -311,7 +376,7 @@ public class CustomObjectMapper {
 		return Instant.ofEpochSecond(value).atZone(ZoneOffset.UTC);
 	}
 
-	JsonValue serialize(ZonedDateTime value) {
+	static JsonValue serialize(ZonedDateTime value) {
 		if (value == null) {
 			return Json.NULL;
 		} else {

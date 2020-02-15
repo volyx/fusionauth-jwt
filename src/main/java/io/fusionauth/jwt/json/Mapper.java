@@ -32,12 +32,13 @@ import java.io.IOException;
  */
 public class Mapper {
   private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-  private static final CustomObjectMapper CUSTOM_OBJECT_MAPPER = new CustomObjectMapper();
-  public static final boolean isCustomMapper = Boolean.getBoolean("minimal.json");
+  private static final MinimalJsonObjectMapper CUSTOM_OBJECT_MAPPER = new MinimalJsonObjectMapper();
+  public static final boolean isMinimalJsonDecode = Boolean.getBoolean("minimal.json.decode");
+  public static final boolean isMinimalJsonEncode = Boolean.getBoolean("minimal.json.encode");
 
   public static <T> T deserialize(byte[] bytes, Class<T> type) throws InvalidJWTException {
     try {
-      if (isCustomMapper) {
+      if (isMinimalJsonDecode) {
         return CUSTOM_OBJECT_MAPPER.readValue(bytes, type);
       }
       return OBJECT_MAPPER.readValue(bytes, type);
@@ -48,7 +49,7 @@ public class Mapper {
 
   public static byte[] prettyPrint(Object object) throws InvalidJWTException {
     try {
-      if (isCustomMapper) {
+      if (isMinimalJsonEncode) {
         return CUSTOM_OBJECT_MAPPER.prettyPrint(object);
       }
       return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsBytes(object);
@@ -59,7 +60,7 @@ public class Mapper {
 
   public static byte[] serialize(Object object) throws InvalidJWTException {
     try {
-      if (isCustomMapper) {
+      if (isMinimalJsonEncode) {
         return CUSTOM_OBJECT_MAPPER.writeValueAsBytes(object);
       }
       return OBJECT_MAPPER.writeValueAsBytes(object);

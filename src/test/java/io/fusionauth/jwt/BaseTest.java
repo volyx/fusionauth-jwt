@@ -37,7 +37,8 @@ public abstract class BaseTest {
 
 
   static {
-    System.out.println("Mapper.isCustomMapper = " + Mapper.isCustomMapper);
+    System.out.println("Mapper.isMinimalJsonEncode = " + Mapper.isMinimalJsonEncode);
+    System.out.println("Mapper.isMinimalJsonDecode = " + Mapper.isMinimalJsonDecode);
   }
 
   private static Map<String, Object> deepSort(Map<String, Object> response) {
