@@ -22,6 +22,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class MinimalJsonObjectMapper {
 				return (T) readJWT(jsonObject);
 			}
 			if (valueType.equals(Map.class)) {
-				Map<String, Object> map = new HashMap<>();
+				final Map<String, Object> map = new HashMap<>();
 				for (String propName : jsonObject.names()) {
 					map.put(propName, jsonObject.get(propName).toString());
 				}
@@ -104,7 +105,7 @@ public class MinimalJsonObjectMapper {
 		}
 
 
-		asMap(jsonObject, jwt.otherClaims);
+		jwt.otherClaims = asMap(jsonObject);
 		return jwt;
 	}
 
@@ -129,7 +130,8 @@ public class MinimalJsonObjectMapper {
 		return header;
 	}
 
-	private static void asMap(JsonObject jsonObject, Map<String, Object> map) {
+	private static Map<String, Object> asMap(JsonObject jsonObject) {
+		final Map<String, Object> map = new HashMap<>();
 		for (String propName : jsonObject.names()) {
 			final JsonValue propValue = jsonObject.get(propName);
 			if (propValue != null) {
@@ -146,12 +148,11 @@ public class MinimalJsonObjectMapper {
 				}
 				if (propValue.isObject()) {
 					final JsonObject nested = propValue.asObject();
-					Map<String, Object> propMap = new HashMap<>();
+					final Map<String, Object> propMap = new HashMap<>();
 					for (String name : nested.names()) {
 						final JsonValue nestedValue = nested.get(name);
 						if (nestedValue.isObject()) {
-							Map<String, Object> nestedMap = new HashMap<>();
-							asMap(nestedValue.asObject(), nestedMap);
+							Map<String, Object> nestedMap = asMap(nestedValue.asObject());
 							propMap.put(name, nestedMap);
 						}
 					}
@@ -172,6 +173,11 @@ public class MinimalJsonObjectMapper {
 				}
 			}
 		}
+		if (map.size() == 1) {
+			final Map.Entry<String, Object> first = map.entrySet().iterator().next();
+			return Collections.singletonMap(first.getKey(), first.getValue());
+		}
+		return map;
 	}
 
 	private static BigInteger asBigInteger(JsonValue propValue) {
@@ -256,8 +262,30 @@ public class MinimalJsonObjectMapper {
 					jsonObject.add(entry.getKey(), entry.getValue().toString());
 				}
 				if (entry.getValue() instanceof List) {
-					jsonObject.add(entry.getKey(), entry.getValue().toString());
+					final JsonArray array = new JsonArray();
+					for (Object o : (List) entry.getValue()) {
+						array.add(o.toString());
+					}
+					jsonObject.add(entry.getKey(), array);
 				}
+				if (entry.getValue() instanceof Map) {
+					final Map<String, Object> nested = (Map<String, Object>) entry.getValue();
+					final JsonObject nestedObject = new JsonObject();
+					for (Map.Entry<String, Object> nestedEntry : nested.entrySet()) {
+						JsonValue nestedNestedValue = null;
+						if (nestedEntry.getValue() instanceof Map) {
+							JsonObject nestedNestedObject = new JsonObject();
+							final Map<String, Object> nestedNested = (Map<String, Object>) nestedEntry.getValue();
+							for (Map.Entry<String, Object> nestedNestedEntry : nestedNested.entrySet()) {
+								nestedNestedObject.add(nestedNestedEntry.getKey(), nestedNestedEntry.getValue().toString());
+							}
+							nestedNestedValue = nestedNestedObject;
+						}
+						nestedObject.add(nestedEntry.getKey(), nestedNestedValue);
+					}
+					jsonObject.add(entry.getKey(), nestedObject);
+				}
+
 				if (entry.getValue() instanceof Boolean) {
 					jsonObject.add(entry.getKey(), Json.value((Boolean) entry.getValue()));
 				}
@@ -272,6 +300,14 @@ public class MinimalJsonObjectMapper {
 				if (entry.getValue() instanceof Double) {
 					final Double entryDouble = (Double) entry.getValue();
 					jsonObject.add(entry.getKey(), BigDecimal.valueOf(entryDouble).toString());
+				}
+				if (entry.getValue() instanceof BigInteger) {
+					final BigInteger bigInteger = (BigInteger) entry.getValue();
+					jsonObject.add(entry.getKey(), Json.parse(bigInteger.toString()));
+				}
+				if (entry.getValue() instanceof BigDecimal) {
+					final BigDecimal bigDecimal = (BigDecimal) entry.getValue();
+					jsonObject.add(entry.getKey(), Json.parse(bigDecimal.toString()));
 				}
 			}
 		} else if (value instanceof JSONWebKey) {
