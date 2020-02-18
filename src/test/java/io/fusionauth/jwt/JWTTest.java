@@ -16,11 +16,14 @@
 
 package io.fusionauth.jwt;
 
+import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.domain.Type;
 import io.fusionauth.jwt.ec.ECSigner;
 import io.fusionauth.jwt.ec.ECVerifier;
 import io.fusionauth.jwt.hmac.HMACSigner;
 import io.fusionauth.jwt.hmac.HMACVerifier;
+import io.fusionauth.jwt.json.Mapper;
 import io.fusionauth.jwt.rsa.RSASigner;
 import io.fusionauth.jwt.rsa.RSAVerifier;
 import org.testng.annotations.Test;

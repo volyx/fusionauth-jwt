@@ -39,6 +39,10 @@ public abstract class BaseTest {
   static {
     System.out.println("Mapper.isMinimalJsonEncode = " + Mapper.isMinimalJsonEncode);
     System.out.println("Mapper.isMinimalJsonDecode = " + Mapper.isMinimalJsonDecode);
+    System.out.println("Mapper.isNanoJsonEncode = " + Mapper.isNanoJsonEncode);
+    System.out.println("Mapper.isNanoJsonDecode = " + Mapper.isNanoJsonDecode);
+    System.out.println("Mapper.isPlainJsonEncode = " + Mapper.isPlainJsonEncode);
+    System.out.println("Mapper.isPlainJsonDecode = " + Mapper.isPlainJsonDecode);
   }
 
   private static Map<String, Object> deepSort(Map<String, Object> response) {

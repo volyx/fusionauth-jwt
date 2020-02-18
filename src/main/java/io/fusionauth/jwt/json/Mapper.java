@@ -33,13 +33,27 @@ import java.io.IOException;
 public class Mapper {
   private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final MinimalJsonObjectMapper CUSTOM_OBJECT_MAPPER = new MinimalJsonObjectMapper();
+  private static final NanoJsonObjectMapper NANO_OBJECT_MAPPER = new NanoJsonObjectMapper();
+  private static final PlainObjectMapper PLAIN_OBJECT_MAPPER = new PlainObjectMapper();
   public static final boolean isMinimalJsonDecode = Boolean.getBoolean("minimal.json.decode");
   public static final boolean isMinimalJsonEncode = Boolean.getBoolean("minimal.json.encode");
+
+  public static final boolean isNanoJsonDecode = Boolean.getBoolean("nano.json.decode");
+  public static final boolean isNanoJsonEncode = Boolean.getBoolean("nano.json.encode");
+
+  public static final boolean isPlainJsonDecode = Boolean.getBoolean("plain.json.decode");
+  public static final boolean isPlainJsonEncode = Boolean.getBoolean("plain.json.encode");
 
   public static <T> T deserialize(byte[] bytes, Class<T> type) throws InvalidJWTException {
     try {
       if (isMinimalJsonDecode) {
         return CUSTOM_OBJECT_MAPPER.readValue(bytes, type);
+      }
+      if (isNanoJsonDecode) {
+        return NANO_OBJECT_MAPPER.readValue(bytes, type);
+      }
+      if (isPlainJsonDecode) {
+        return PLAIN_OBJECT_MAPPER.readValue(bytes, type);
       }
       return OBJECT_MAPPER.readValue(bytes, type);
     } catch (IOException e) {
@@ -52,6 +66,12 @@ public class Mapper {
       if (isMinimalJsonEncode) {
         return CUSTOM_OBJECT_MAPPER.prettyPrint(object);
       }
+      if (isNanoJsonEncode) {
+        return NANO_OBJECT_MAPPER.prettyPrint(object);
+      }
+      if (isPlainJsonEncode) {
+        return PLAIN_OBJECT_MAPPER.prettyPrint(object);
+      }
       return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsBytes(object);
     } catch (JsonProcessingException e) {
       throw new InvalidJWTException("The object could not be serialized.", e);
@@ -62,6 +82,13 @@ public class Mapper {
     try {
       if (isMinimalJsonEncode) {
         return CUSTOM_OBJECT_MAPPER.writeValueAsBytes(object);
+      }
+      if (isNanoJsonEncode) {
+        return NANO_OBJECT_MAPPER.writeValueAsBytes(object);
+      }
+
+      if (isPlainJsonEncode) {
+        return PLAIN_OBJECT_MAPPER.writeValueAsBytes(object);
       }
       return OBJECT_MAPPER.writeValueAsBytes(object);
     } catch (JsonProcessingException e) {

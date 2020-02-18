@@ -1,0 +1,247 @@
+package io.fusionauth.jwt.json;
+
+import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.domain.Header;
+import io.fusionauth.jwt.domain.JWT;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+
+public class PlainObjectMapper {
+	public <T> T readValue(byte[] bytes, Class<T> type) {
+		return null;
+	}
+
+	public byte[] prettyPrint(Object object) {
+		return new byte[0];
+	}
+
+	public byte[] writeValueAsBytes(Object value) {
+		return writeValueAsString(value).getBytes(StandardCharsets.UTF_8);
+	}
+
+	public String writeValueAsString(Object value) {
+		if (value instanceof Header) {
+			return writeHeader((Header) value);
+		} else if (value instanceof JWT) {
+			return writeJWT((JWT) value);
+		} else if (value instanceof JSONWebKey) {
+			return writeJSONWebKey((JSONWebKey) value);
+		} else if (value instanceof Map) {
+			return writeMap((Map<String, Object>) value);
+		} else {
+			throw new UnsupportedOperationException("unsupported object type " + value.getClass().getSimpleName());
+		}
+	}
+
+	private static void writeMap(Map<String, Object> value, StringBuilder sb) {
+		for (Map.Entry<String, Object> entry : value.entrySet()) {
+
+			if (entry.getValue() instanceof String) {
+				sb.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"").append(',');
+			}
+			if (entry.getValue() instanceof List) {
+				sb.append("\"").append(entry.getKey()).append("\":");
+				writeList((List<String>) entry.getValue(), sb);
+				sb.append(',');
+			}
+			if (entry.getValue() instanceof Map) {
+				final Map<String, Object> nested = (Map<String, Object>) entry.getValue();
+				sb.append("\"").append(entry.getKey()).append("\":");
+				sb.append('{');
+				writeMap(nested, sb);
+				sb.append('}');
+				sb.append(',');
+			}
+
+			if (entry.getValue() instanceof Boolean) {
+				sb.append("\"").append(entry.getKey()).append("\":").append(entry.getValue()).append(',');
+			}
+			if (entry.getValue() instanceof Integer) {
+				final Integer entryInt = (Integer) entry.getValue();
+				sb.append("\"").append(entry.getKey()).append("\":").append(entryInt).append(',');
+			}
+			if (entry.getValue() instanceof Float) {
+				final Float entryFloat = (Float) entry.getValue();
+				sb.append("\"").append(entry.getKey()).append("\":").append(BigDecimal.valueOf(entryFloat)).append(',');
+			}
+			if (entry.getValue() instanceof Double) {
+				final Double entryDouble = (Double) entry.getValue();
+				sb.append("\"").append(entry.getKey()).append("\":").append(BigDecimal.valueOf(entryDouble)).append(',');
+			}
+			if (entry.getValue() instanceof BigInteger) {
+				final BigInteger bigInteger = (BigInteger) entry.getValue();
+				sb.append("\"").append(entry.getKey()).append("\":").append(bigInteger.toString()).append(',');
+			}
+			if (entry.getValue() instanceof BigDecimal) {
+				final BigDecimal bigDecimal = (BigDecimal) entry.getValue();
+				sb.append("\"").append(entry.getKey()).append("\":").append(bigDecimal.toString()).append(',');
+			}
+		}
+
+		if (sb.charAt(sb.length() - 1) == ',')
+			sb.deleteCharAt(sb.length() - 1);
+
+	}
+
+	private static String writeMap(Map<String, Object> value) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		writeMap(value, sb);
+		sb.append('}');
+		return sb.toString();
+	}
+
+	private static String writeJSONWebKey(JSONWebKey jsonWebKey) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+
+		if (jsonWebKey.alg != null) {
+			sb.append("\"alg\":\"").append(jsonWebKey.alg.name()).append("\"").append(",");
+		}
+		if (jsonWebKey.crv != null) {
+			sb.append("\"crv\":\"").append(jsonWebKey.crv).append("\"").append(",");
+		}
+		if (jsonWebKey.d != null) {
+			sb.append("\"d\":\"").append(jsonWebKey.d).append("\"").append(",");
+		}
+		if (jsonWebKey.dp != null) {
+			sb.append("\"dp\":\"").append(jsonWebKey.dp).append("\"").append(",");
+		}
+		if (jsonWebKey.dq != null) {
+			sb.append("\"dq\":\"").append(jsonWebKey.dq).append("\"").append(",");
+		}
+		if (jsonWebKey.e != null) {
+			sb.append("\"e\":\"").append(jsonWebKey.e).append("\"").append(",");
+		}
+		if (jsonWebKey.kid != null) {
+			sb.append("\"kid\":\"").append(jsonWebKey.kid).append("\"").append(",");
+		}
+		if (jsonWebKey.kty != null) {
+			sb.append("\"kty\":\"").append(jsonWebKey.kty).append("\"").append(",");
+		}
+		if (jsonWebKey.n != null) {
+			sb.append("\"n\":\"").append(jsonWebKey.n).append("\"").append(",");
+		}
+		if (jsonWebKey.p != null) {
+			sb.append("\"p\":\"").append(jsonWebKey.p).append("\"").append(",");
+		}
+		if (jsonWebKey.q != null) {
+			sb.append("\"q\":\"").append(jsonWebKey.q).append("\"").append(",");
+		}
+		if (jsonWebKey.qi != null) {
+			sb.append("\"qi\":\"").append(jsonWebKey.qi).append("\"").append(",");
+		}
+		if (jsonWebKey.use != null) {
+			sb.append("\"use\":\"").append(jsonWebKey.use).append("\"").append(",");
+		}
+		if (jsonWebKey.x != null) {
+			sb.append("\"x\":\"").append(jsonWebKey.x).append("\"").append(",");
+		}
+		if (jsonWebKey.x5c != null) {
+			sb.append("\"x5c\":\"").append(jsonWebKey.x5c).append("\"").append(",");
+		}
+		if (jsonWebKey.x5t != null) {
+			sb.append("\"x5t\":\"").append(jsonWebKey.x5t).append("\"").append(",");
+		}
+		if (jsonWebKey.x5t_256 != null) {
+			sb.append("\"x5t#S256\":\"").append(jsonWebKey.x5t_256).append("\"").append(",");
+		}
+		if (jsonWebKey.y != null) {
+			sb.append("\"y\":\"").append(jsonWebKey.y).append("\"").append(",");
+		}
+
+		writeMap(jsonWebKey.other, sb);
+
+		if (sb.charAt(sb.length() - 1) == ',')
+			sb.deleteCharAt(sb.length() - 1);
+
+		sb.append('}');
+		return sb.toString();
+	}
+
+	private static String writeJWT(JWT jwt) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+
+		if (jwt.audience != null) {
+			if (jwt.audience instanceof String)
+				sb.append("\"aud\":\"").append(jwt.audience).append("\"").append(',');
+
+			if (jwt.audience instanceof List) {
+				sb.append("\"aud\":");
+				writeList((List<String>) jwt.audience, sb);
+				sb.append(',');
+			}
+		}
+
+		if (jwt.subject != null) {
+			sb.append("\"sub\":\"").append(jwt.subject).append("\"").append(',');
+		}
+
+		if (jwt.expiration != null) {
+			sb.append("\"exp\":").append(jwt.expiration.toEpochSecond()).append(',');
+		}
+
+		if (jwt.issuedAt != null) {
+			sb.append("\"iat\":").append(jwt.issuedAt.toEpochSecond()).append(',');
+		}
+
+		if (jwt.notBefore != null) {
+			sb.append("\"nbf\":").append(jwt.notBefore.toEpochSecond()).append(',');
+		}
+
+		if (jwt.issuer != null) {
+			sb.append("\"iss\":\"").append(jwt.issuer).append("\"").append(',');
+		}
+
+		if (jwt.uniqueId != null) {
+			sb.append("\"jti\":\"").append(jwt.uniqueId).append("\"").append(',');
+		}
+
+		writeMap(jwt.otherClaims, sb);
+
+		if (sb.charAt(sb.length() - 1) == ',')
+			sb.deleteCharAt(sb.length() - 1);
+
+		sb.append('}');
+		return sb.toString();
+	}
+
+	private static void writeList(List<String> list, StringBuilder sb) {
+		sb.append("[");
+		for (int i = 0; i < list.size(); i++) {
+			final String aud = list.get(i);
+			sb.append("\"").append(aud).append("\"");
+			if (i != list.size() - 1) {
+				sb.append(",");
+			}
+		}
+		sb.append(']');
+	}
+
+	private static String writeHeader(Header header) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		if (header.algorithm != null) {
+			sb.append("\"alg\":\"").append(header.algorithm.name()).append("\"").append(',');
+			header.properties.remove("alg");
+		}
+		if (header.type != null) {
+			sb.append("\"typ\":\"").append(header.type.name()).append("\"").append(',');
+			header.properties.remove("typ");
+		}
+		for (Map.Entry<String, String> entry : header.properties.entrySet()) {
+
+			sb.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"").append(',');
+		}
+		if (sb.charAt(sb.length() - 1) == ',')
+			sb.deleteCharAt(sb.length() - 1);
+
+		sb.append('}');
+		return sb.toString();
+	}
+}
