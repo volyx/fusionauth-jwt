@@ -1,18 +1,106 @@
 package io.fusionauth.jwt.json;
 
 import io.fusionauth.jwks.domain.JSONWebKey;
+import io.fusionauth.jwt.domain.Algorithm;
 import io.fusionauth.jwt.domain.Header;
 import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.domain.Type;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import static io.fusionauth.jwt.json.NanoJsonObjectMapper.deserializeZonedDateTime;
+
 public class PlainObjectMapper {
-	public <T> T readValue(byte[] bytes, Class<T> type) {
-		return null;
+	public <T> T readValue(byte[] bytes, Class<T> value) {
+
+		if (value.equals(Header.class)) {
+			return (T) readHeader(bytes);
+		} else if (value.equals(JWT.class)) {
+			return (T) readJWT(bytes);
+		}
+		if (value.equals(Map.class)) {
+			try {
+				final JsonReader jsonReader = new JsonReader(bytes);
+				return (T) jsonReader.readMap();
+			} catch (IOException | ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			throw new UnsupportedOperationException("unsupported object type " + value.getSimpleName());
+		}
+	}
+
+	private static JWT readJWT(byte[] bytes) {
+		final JsonReader jsonReader = new JsonReader(bytes);
+		final JWT jwt = new JWT();
+		try {
+			for (Map.Entry<String, Object> entry : jsonReader.readMap().entrySet()) {
+				switch (entry.getKey()) {
+					case "aud":
+						jwt.audience = entry.getValue();
+						break;
+					case "exp":
+						final BigInteger exp = (BigInteger) entry.getValue();
+						if (!exp.equals(BigInteger.ZERO)) {
+							jwt.expiration = deserializeZonedDateTime(exp.longValue());
+						}
+						break;
+					case "iat":
+						final BigInteger iat = (BigInteger) entry.getValue();
+						if (!iat.equals(BigInteger.ZERO)) {
+							jwt.issuedAt = deserializeZonedDateTime(iat.longValue());
+						}
+						break;
+					case "iss":
+						jwt.issuer = (String) entry.getValue();
+						break;
+					case "nbf":
+						final BigInteger nbf = (BigInteger) entry.getValue();
+						if (!nbf.equals(BigInteger.ZERO)) {
+							jwt.notBefore = deserializeZonedDateTime(nbf.longValue());
+						}
+						break;
+					case "sub":
+						jwt.subject = (String) entry.getValue();
+						break;
+					case "jti":
+						jwt.uniqueId = (String) entry.getValue();
+						break;
+					default:
+						jwt.otherClaims.put(entry.getKey(), entry.getValue());
+				}
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		return jwt;
+	}
+
+	private static Header readHeader(byte[] bytes) {
+		final Header header = new Header();
+		final JsonReader jsonReader = new JsonReader(bytes);
+		try {
+			for (Map.Entry<String, Object> entry : jsonReader.readMap().entrySet()) {
+				switch (entry.getKey()) {
+					case "alg":
+						header.algorithm = Algorithm.valueOf(entry.getValue().toString());
+						break;
+					case "typ":
+						header.type = Type.valueOf(entry.getValue().toString());
+						break;
+					default:
+						header.properties.put(entry.getKey(), entry.getValue().toString());
+				}
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		return header;
 	}
 
 	public byte[] prettyPrint(Object object) {

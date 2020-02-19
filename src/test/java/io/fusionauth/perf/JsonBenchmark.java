@@ -260,7 +260,7 @@ public class JsonBenchmark {
 				decoded = parameters.nanoJsonObjectMapper.readValue(parameters.json, JWT.class);
 				break;
 			case "Plain":
-				decoded = parameters.nanoJsonObjectMapper.readValue(parameters.json, JWT.class);
+				decoded = parameters.plainObjectMapper.readValue(parameters.json, JWT.class);
 				break;
 			case "None":
 				decoded = new JWT();
@@ -285,7 +285,7 @@ public class JsonBenchmark {
 				encoded = parameters.nanoJsonObjectMapper.writeValueAsBytes(parameters.jwt);
 				break;
 			case "Plain":
-				encoded = parameters.nanoJsonObjectMapper.writeValueAsBytes(parameters.jwt);
+				encoded = parameters.plainObjectMapper.writeValueAsBytes(parameters.jwt);
 				break;
 			case "None":
 				encoded = new byte[100];
