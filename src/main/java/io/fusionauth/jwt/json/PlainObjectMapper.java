@@ -235,7 +235,6 @@ public class PlainObjectMapper {
 			header.properties.remove("typ");
 		}
 		for (Map.Entry<String, String> entry : header.properties.entrySet()) {
-
 			sb.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"").append(',');
 		}
 		if (sb.charAt(sb.length() - 1) == ',')

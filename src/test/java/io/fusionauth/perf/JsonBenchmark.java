@@ -33,82 +33,128 @@ import java.util.concurrent.TimeUnit;
 
 /*
 
-http://klikr.org/ac740cf88935c80d83aaf24e6c2d.txt
 
 Benchmark                                    (serializer)    Mode      Cnt       Score    Error   Units
-JsonBenchmark.testDecode                          Jackson   thrpt        5       0,916 ±  0,082  ops/us
-JsonBenchmark.testDecode                      MinimalJson   thrpt        5       0,220 ±  0,080  ops/us
-JsonBenchmark.testDecode                         NanoJson   thrpt        5       0,075 ±  0,049  ops/us
-JsonBenchmark.testEncode                          Jackson   thrpt        5       0,099 ±  0,015  ops/us
-JsonBenchmark.testEncode                      MinimalJson   thrpt        5       0,075 ±  0,012  ops/us
-JsonBenchmark.testEncode                         NanoJson   thrpt        5       0,097 ±  0,042  ops/us
-JsonBenchmark.testDecode                          Jackson    avgt        5       1,421 ±  1,374   us/op
-JsonBenchmark.testDecode                      MinimalJson    avgt        5       9,705 ± 20,836   us/op
-JsonBenchmark.testDecode                         NanoJson    avgt        5      13,406 ±  5,431   us/op
-JsonBenchmark.testEncode                          Jackson    avgt        5      11,697 ± 11,304   us/op
-JsonBenchmark.testEncode                      MinimalJson    avgt        5      10,082 ±  2,633   us/op
-JsonBenchmark.testEncode                         NanoJson    avgt        5      10,903 ±  2,098   us/op
-JsonBenchmark.testDecode                          Jackson  sample  1338641       1,597 ±  0,124   us/op
-JsonBenchmark.testDecode:testDecode·p0.00         Jackson  sample                0,957            us/op
-JsonBenchmark.testDecode:testDecode·p0.50         Jackson  sample                1,009            us/op
-JsonBenchmark.testDecode:testDecode·p0.90         Jackson  sample                1,168            us/op
-JsonBenchmark.testDecode:testDecode·p0.95         Jackson  sample                1,884            us/op
-JsonBenchmark.testDecode:testDecode·p0.99         Jackson  sample                2,532            us/op
-JsonBenchmark.testDecode:testDecode·p0.999        Jackson  sample               49,559            us/op
-JsonBenchmark.testDecode:testDecode·p0.9999       Jackson  sample              870,678            us/op
-JsonBenchmark.testDecode:testDecode·p1.00         Jackson  sample            30244,864            us/op
-JsonBenchmark.testDecode                      MinimalJson  sample  1606315       4,102 ±  0,047   us/op
+JsonBenchmark.testDecode                          Jackson   thrpt        5       0,852 ±  0,881  ops/us
+JsonBenchmark.testDecode                      MinimalJson   thrpt        5       0,283 ±  0,076  ops/us
+JsonBenchmark.testDecode                         NanoJson   thrpt        5       0,096 ±  0,002  ops/us
+JsonBenchmark.testDecode                            Plain   thrpt        5       0,096 ±  0,001  ops/us
+JsonBenchmark.testDecode                             None   thrpt        5       7,993 ±  1,868  ops/us
+JsonBenchmark.testEncode                          Jackson   thrpt        5       0,109 ±  0,027  ops/us
+JsonBenchmark.testEncode                      MinimalJson   thrpt        5       0,109 ±  0,004  ops/us
+JsonBenchmark.testEncode                         NanoJson   thrpt        5       0,110 ±  0,030  ops/us
+JsonBenchmark.testEncode                            Plain   thrpt        5       0,125 ±  0,001  ops/us
+JsonBenchmark.testEncode                             None   thrpt        5      29,904 ±  0,740  ops/us
+JsonBenchmark.testDecode                          Jackson    avgt        5       1,025 ±  0,141   us/op
+JsonBenchmark.testDecode                      MinimalJson    avgt        5       3,774 ±  0,945   us/op
+JsonBenchmark.testDecode                         NanoJson    avgt        5      10,906 ±  1,853   us/op
+JsonBenchmark.testDecode                            Plain    avgt        5      10,498 ±  0,251   us/op
+JsonBenchmark.testDecode                             None    avgt        5       0,125 ±  0,010   us/op
+JsonBenchmark.testEncode                          Jackson    avgt        5       8,616 ±  0,129   us/op
+JsonBenchmark.testEncode                      MinimalJson    avgt        5       8,105 ±  0,112   us/op
+JsonBenchmark.testEncode                         NanoJson    avgt        5       8,210 ±  1,461   us/op
+JsonBenchmark.testEncode                            Plain    avgt        5       8,108 ±  0,200   us/op
+JsonBenchmark.testEncode                             None    avgt        5       0,033 ±  0,001   us/op
+JsonBenchmark.testDecode                          Jackson  sample  1447253       1,230 ±  0,025   us/op
+JsonBenchmark.testDecode:testDecode·p0.00         Jackson  sample                0,978            us/op
+JsonBenchmark.testDecode:testDecode·p0.50         Jackson  sample                1,026            us/op
+JsonBenchmark.testDecode:testDecode·p0.90         Jackson  sample                1,118            us/op
+JsonBenchmark.testDecode:testDecode·p0.95         Jackson  sample                1,240            us/op
+JsonBenchmark.testDecode:testDecode·p0.99         Jackson  sample                2,356            us/op
+JsonBenchmark.testDecode:testDecode·p0.999        Jackson  sample               24,800            us/op
+JsonBenchmark.testDecode:testDecode·p0.9999       Jackson  sample              203,781            us/op
+JsonBenchmark.testDecode:testDecode·p1.00         Jackson  sample             4251,648            us/op
+JsonBenchmark.testDecode                      MinimalJson  sample  1797905       3,586 ±  0,024   us/op
 JsonBenchmark.testDecode:testDecode·p0.00     MinimalJson  sample                2,836            us/op
-JsonBenchmark.testDecode:testDecode·p0.50     MinimalJson  sample                3,260            us/op
-JsonBenchmark.testDecode:testDecode·p0.90     MinimalJson  sample                4,936            us/op
-JsonBenchmark.testDecode:testDecode·p0.95     MinimalJson  sample                5,600            us/op
-JsonBenchmark.testDecode:testDecode·p0.99     MinimalJson  sample               13,600            us/op
-JsonBenchmark.testDecode:testDecode·p0.999    MinimalJson  sample               79,488            us/op
-JsonBenchmark.testDecode:testDecode·p0.9999   MinimalJson  sample              782,336            us/op
-JsonBenchmark.testDecode:testDecode·p1.00     MinimalJson  sample             7151,616            us/op
-JsonBenchmark.testDecode                         NanoJson  sample  1133994      14,376 ±  0,456   us/op
-JsonBenchmark.testDecode:testDecode·p0.00        NanoJson  sample                7,392            us/op
-JsonBenchmark.testDecode:testDecode·p0.50        NanoJson  sample               10,016            us/op
-JsonBenchmark.testDecode:testDecode·p0.90        NanoJson  sample               13,952            us/op
-JsonBenchmark.testDecode:testDecode·p0.95        NanoJson  sample               15,440            us/op
-JsonBenchmark.testDecode:testDecode·p0.99        NanoJson  sample               43,200            us/op
-JsonBenchmark.testDecode:testDecode·p0.999       NanoJson  sample              758,784            us/op
-JsonBenchmark.testDecode:testDecode·p0.9999      NanoJson  sample             4993,847            us/op
-JsonBenchmark.testDecode:testDecode·p1.00        NanoJson  sample            58327,040            us/op
-JsonBenchmark.testEncode                          Jackson  sample  1212865      11,215 ±  0,305   us/op
-JsonBenchmark.testEncode:testEncode·p0.00         Jackson  sample                7,952            us/op
-JsonBenchmark.testEncode:testEncode·p0.50         Jackson  sample                8,384            us/op
-JsonBenchmark.testEncode:testEncode·p0.90         Jackson  sample                9,488            us/op
-JsonBenchmark.testEncode:testEncode·p0.95         Jackson  sample               16,224            us/op
-JsonBenchmark.testEncode:testEncode·p0.99         Jackson  sample               26,912            us/op
-JsonBenchmark.testEncode:testEncode·p0.999        Jackson  sample              388,677            us/op
-JsonBenchmark.testEncode:testEncode·p0.9999       Jackson  sample             2898,769            us/op
-JsonBenchmark.testEncode:testEncode·p1.00         Jackson  sample            56754,176            us/op
-JsonBenchmark.testEncode                      MinimalJson  sample  1212690      12,045 ±  0,738   us/op
-JsonBenchmark.testEncode:testEncode·p0.00     MinimalJson  sample                7,272            us/op
-JsonBenchmark.testEncode:testEncode·p0.50     MinimalJson  sample                7,832            us/op
-JsonBenchmark.testEncode:testEncode·p0.90     MinimalJson  sample               12,224            us/op
-JsonBenchmark.testEncode:testEncode·p0.95     MinimalJson  sample               14,624            us/op
-JsonBenchmark.testEncode:testEncode·p0.99     MinimalJson  sample               31,808            us/op
-JsonBenchmark.testEncode:testEncode·p0.999    MinimalJson  sample              646,460            us/op
-JsonBenchmark.testEncode:testEncode·p0.9999   MinimalJson  sample             4358,144            us/op
-JsonBenchmark.testEncode:testEncode·p1.00     MinimalJson  sample           173277,184            us/op
-JsonBenchmark.testEncode                         NanoJson  sample  1355756       9,705 ±  0,189   us/op
-JsonBenchmark.testEncode:testEncode·p0.00        NanoJson  sample                7,080            us/op
-JsonBenchmark.testEncode:testEncode·p0.50        NanoJson  sample                7,784            us/op
-JsonBenchmark.testEncode:testEncode·p0.90        NanoJson  sample                9,200            us/op
-JsonBenchmark.testEncode:testEncode·p0.95        NanoJson  sample               13,120            us/op
-JsonBenchmark.testEncode:testEncode·p0.99        NanoJson  sample               24,736            us/op
-JsonBenchmark.testEncode:testEncode·p0.999       NanoJson  sample              185,150            us/op
-JsonBenchmark.testEncode:testEncode·p0.9999      NanoJson  sample             1976,010            us/op
-JsonBenchmark.testEncode:testEncode·p1.00        NanoJson  sample            27262,976            us/op
-JsonBenchmark.testDecode                          Jackson      ss           132440,720            us/op
-JsonBenchmark.testDecode                      MinimalJson      ss            11010,669            us/op
-JsonBenchmark.testDecode                         NanoJson      ss            21058,245            us/op
-JsonBenchmark.testEncode                          Jackson      ss           135081,680            us/op
-JsonBenchmark.testEncode                      MinimalJson      ss            15883,072            us/op
-JsonBenchmark.testEncode                         NanoJson      ss            22326,541            us/op
-
+JsonBenchmark.testDecode:testDecode·p0.50     MinimalJson  sample                3,236            us/op
+JsonBenchmark.testDecode:testDecode·p0.90     MinimalJson  sample                3,556            us/op
+JsonBenchmark.testDecode:testDecode·p0.95     MinimalJson  sample                3,876            us/op
+JsonBenchmark.testDecode:testDecode·p0.99     MinimalJson  sample                6,208            us/op
+JsonBenchmark.testDecode:testDecode·p0.999    MinimalJson  sample               43,776            us/op
+JsonBenchmark.testDecode:testDecode·p0.9999   MinimalJson  sample              721,110            us/op
+JsonBenchmark.testDecode:testDecode·p1.00     MinimalJson  sample             2441,216            us/op
+JsonBenchmark.testDecode                         NanoJson  sample  1171993      10,815 ±  0,050   us/op
+JsonBenchmark.testDecode:testDecode·p0.00        NanoJson  sample                7,352            us/op
+JsonBenchmark.testDecode:testDecode·p0.50        NanoJson  sample                9,984            us/op
+JsonBenchmark.testDecode:testDecode·p0.90        NanoJson  sample               11,456            us/op
+JsonBenchmark.testDecode:testDecode·p0.95        NanoJson  sample               12,544            us/op
+JsonBenchmark.testDecode:testDecode·p0.99        NanoJson  sample               20,096            us/op
+JsonBenchmark.testDecode:testDecode·p0.999       NanoJson  sample               83,201            us/op
+JsonBenchmark.testDecode:testDecode·p0.9999      NanoJson  sample              822,068            us/op
+JsonBenchmark.testDecode:testDecode·p1.00        NanoJson  sample             5644,288            us/op
+JsonBenchmark.testDecode                            Plain  sample  1175766      10,791 ±  0,058   us/op
+JsonBenchmark.testDecode:testDecode·p0.00           Plain  sample                7,392            us/op
+JsonBenchmark.testDecode:testDecode·p0.50           Plain  sample                9,936            us/op
+JsonBenchmark.testDecode:testDecode·p0.90           Plain  sample               11,472            us/op
+JsonBenchmark.testDecode:testDecode·p0.95           Plain  sample               12,608            us/op
+JsonBenchmark.testDecode:testDecode·p0.99           Plain  sample               19,936            us/op
+JsonBenchmark.testDecode:testDecode·p0.999          Plain  sample               83,200            us/op
+JsonBenchmark.testDecode:testDecode·p0.9999         Plain  sample              818,176            us/op
+JsonBenchmark.testDecode:testDecode·p1.00           Plain  sample            11534,336            us/op
+JsonBenchmark.testDecode                             None  sample  1473190       0,203 ±  0,010   us/op
+JsonBenchmark.testDecode:testDecode·p0.00            None  sample                0,146            us/op
+JsonBenchmark.testDecode:testDecode·p0.50            None  sample                0,163            us/op
+JsonBenchmark.testDecode:testDecode·p0.90            None  sample                0,182            us/op
+JsonBenchmark.testDecode:testDecode·p0.95            None  sample                0,196            us/op
+JsonBenchmark.testDecode:testDecode·p0.99            None  sample                0,315            us/op
+JsonBenchmark.testDecode:testDecode·p0.999           None  sample                4,645            us/op
+JsonBenchmark.testDecode:testDecode·p0.9999          None  sample               34,860            us/op
+JsonBenchmark.testDecode:testDecode·p1.00            None  sample             1755,136            us/op
+JsonBenchmark.testEncode                          Jackson  sample  1369066       9,258 ±  0,079   us/op
+JsonBenchmark.testEncode:testEncode·p0.00         Jackson  sample                7,992            us/op
+JsonBenchmark.testEncode:testEncode·p0.50         Jackson  sample                8,448            us/op
+JsonBenchmark.testEncode:testEncode·p0.90         Jackson  sample                9,072            us/op
+JsonBenchmark.testEncode:testEncode·p0.95         Jackson  sample                9,328            us/op
+JsonBenchmark.testEncode:testEncode·p0.99         Jackson  sample               18,464            us/op
+JsonBenchmark.testEncode:testEncode·p0.999        Jackson  sample               81,280            us/op
+JsonBenchmark.testEncode:testEncode·p0.9999       Jackson  sample              844,896            us/op
+JsonBenchmark.testEncode:testEncode·p1.00         Jackson  sample            16777,216            us/op
+JsonBenchmark.testEncode                      MinimalJson  sample  1564022       8,097 ±  0,033   us/op
+JsonBenchmark.testEncode:testEncode·p0.00     MinimalJson  sample                7,152            us/op
+JsonBenchmark.testEncode:testEncode·p0.50     MinimalJson  sample                7,592            us/op
+JsonBenchmark.testEncode:testEncode·p0.90     MinimalJson  sample                7,992            us/op
+JsonBenchmark.testEncode:testEncode·p0.95     MinimalJson  sample                8,432            us/op
+JsonBenchmark.testEncode:testEncode·p0.99     MinimalJson  sample               13,920            us/op
+JsonBenchmark.testEncode:testEncode·p0.999    MinimalJson  sample               62,400            us/op
+JsonBenchmark.testEncode:testEncode·p0.9999   MinimalJson  sample              783,360            us/op
+JsonBenchmark.testEncode:testEncode·p1.00     MinimalJson  sample             1603,584            us/op
+JsonBenchmark.testEncode                         NanoJson  sample  1491619       8,476 ±  0,060   us/op
+JsonBenchmark.testEncode:testEncode·p0.00        NanoJson  sample                6,952            us/op
+JsonBenchmark.testEncode:testEncode·p0.50        NanoJson  sample                7,648            us/op
+JsonBenchmark.testEncode:testEncode·p0.90        NanoJson  sample                8,432            us/op
+JsonBenchmark.testEncode:testEncode·p0.95        NanoJson  sample               10,144            us/op
+JsonBenchmark.testEncode:testEncode·p0.99        NanoJson  sample               19,328            us/op
+JsonBenchmark.testEncode:testEncode·p0.999       NanoJson  sample               74,112            us/op
+JsonBenchmark.testEncode:testEncode·p0.9999      NanoJson  sample              807,936            us/op
+JsonBenchmark.testEncode:testEncode·p1.00        NanoJson  sample            20054,016            us/op
+JsonBenchmark.testEncode                            Plain  sample  1511131       8,399 ±  0,048   us/op
+JsonBenchmark.testEncode:testEncode·p0.00           Plain  sample                6,848            us/op
+JsonBenchmark.testEncode:testEncode·p0.50           Plain  sample                7,624            us/op
+JsonBenchmark.testEncode:testEncode·p0.90           Plain  sample                8,320            us/op
+JsonBenchmark.testEncode:testEncode·p0.95           Plain  sample                9,248            us/op
+JsonBenchmark.testEncode:testEncode·p0.99           Plain  sample               18,944            us/op
+JsonBenchmark.testEncode:testEncode·p0.999          Plain  sample               75,136            us/op
+JsonBenchmark.testEncode:testEncode·p0.9999         Plain  sample              809,984            us/op
+JsonBenchmark.testEncode:testEncode·p1.00           Plain  sample            10665,984            us/op
+JsonBenchmark.testEncode                             None  sample  1317292       0,131 ±  0,051   us/op
+JsonBenchmark.testEncode:testEncode·p0.00            None  sample                0,032            us/op
+JsonBenchmark.testEncode:testEncode·p0.50            None  sample                0,076            us/op
+JsonBenchmark.testEncode:testEncode·p0.90            None  sample                0,088            us/op
+JsonBenchmark.testEncode:testEncode·p0.95            None  sample                0,107            us/op
+JsonBenchmark.testEncode:testEncode·p0.99            None  sample                0,221            us/op
+JsonBenchmark.testEncode:testEncode·p0.999           None  sample                2,420            us/op
+JsonBenchmark.testEncode:testEncode·p0.9999          None  sample               33,361            us/op
+JsonBenchmark.testEncode:testEncode·p1.00            None  sample            16171,008            us/op
+JsonBenchmark.testDecode                          Jackson      ss           248459,639            us/op
+JsonBenchmark.testDecode                      MinimalJson      ss             9389,887            us/op
+JsonBenchmark.testDecode                         NanoJson      ss            21450,854            us/op
+JsonBenchmark.testDecode                            Plain      ss             3742,186            us/op
+JsonBenchmark.testDecode                             None      ss              103,753            us/op
+JsonBenchmark.testEncode                          Jackson      ss           204919,147            us/op
+JsonBenchmark.testEncode                      MinimalJson      ss            12637,367            us/op
+JsonBenchmark.testEncode                         NanoJson      ss            21939,862            us/op
+JsonBenchmark.testEncode                            Plain      ss             6556,408            us/op
+JsonBenchmark.testEncode                             None      ss               66,902            us/op
 
  */
 
@@ -121,7 +167,8 @@ public class JsonBenchmark {
 				"Jackson",
 				"MinimalJson",
 				"NanoJson",
-				"Plain"
+				"Plain",
+				"None"
 		} )
 		public String serializer;
 
@@ -215,6 +262,10 @@ public class JsonBenchmark {
 			case "Plain":
 				decoded = parameters.nanoJsonObjectMapper.readValue(parameters.json, JWT.class);
 				break;
+			case "None":
+				decoded = new JWT();
+				decoded.audience = System.currentTimeMillis() + "";
+				break;
 		}
 
 		bh.consume(decoded);
@@ -235,6 +286,9 @@ public class JsonBenchmark {
 				break;
 			case "Plain":
 				encoded = parameters.nanoJsonObjectMapper.writeValueAsBytes(parameters.jwt);
+				break;
+			case "None":
+				encoded = new byte[100];
 				break;
 		}
 
