@@ -1,8 +1,12 @@
 package io.fusionauth.perf;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.fusionauth.jwt.domain.JWT;
+import io.fusionauth.jwt.json.JacksonModule;
 import io.fusionauth.jwt.json.MinimalJsonObjectMapper;
 import io.fusionauth.jwt.json.NanoJsonObjectMapper;
 import io.fusionauth.jwt.json.PlainObjectMapper;
@@ -215,7 +219,14 @@ public class JsonBenchmark {
 					.addClaim("object", Collections.singletonMap("nested", Collections.singletonMap("foo", "bar")))
 					.addClaim("www.inversoft.com/claims/is_admin", true);
 
-			objectMapper = new ObjectMapper();
+			objectMapper = new ObjectMapper()
+					.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+					.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
+					.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
+					.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
+					.configure(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS, true)
+					.registerModule(new JacksonModule());
+
 			minimalJsonObjectMapper = new MinimalJsonObjectMapper();
 			nanoJsonObjectMapper = new NanoJsonObjectMapper();
 			plainObjectMapper = new PlainObjectMapper();
@@ -271,7 +282,7 @@ public class JsonBenchmark {
 		bh.consume(decoded);
 	}
 
-//	@Benchmark
+	@Benchmark
 	public void testEncode(Parameters parameters, Blackhole bh) throws JsonProcessingException {
 		byte[] encoded = new byte[0];
 		switch (parameters.serializer) {
