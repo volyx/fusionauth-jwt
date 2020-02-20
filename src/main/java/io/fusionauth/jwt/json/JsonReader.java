@@ -91,6 +91,18 @@ public class JsonReader {
         return Double.parseDouble(readNumber());
     }
 
+    public final BigDecimal readBigDecimal() throws IOException {
+        return new BigDecimal(readNumber());
+    }
+
+    public final BigInteger readBigInteger() throws IOException {
+        final String number = readNumber();
+        if ("0".equals(number)) {
+            return BigInteger.ZERO;
+        }
+        return new BigInteger(number);
+    }
+
     public final String readNumber() throws IOException {
         StringBuilder sb = new StringBuilder();
 
@@ -185,7 +197,7 @@ public class JsonReader {
         return sb.toString();
     }
 
-    public ArrayList<Object> readArray() throws IOException, ClassNotFoundException {
+    public ArrayList<Object> readArray() throws IOException {
         ArrayList<Object> result = new ArrayList<>();
         expect('[', "Expected array");
         for (boolean needComma = false; skipWhitespace() != ']'; needComma = true) {
@@ -199,7 +211,7 @@ public class JsonReader {
         return result;
     }
 
-    public Map<String, Object> readMap() throws IOException, ClassNotFoundException {
+    public Map<String, Object> readMap() throws IOException {
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         expect('{', "Expected map");
         for (boolean needComma = false; skipWhitespace() != '}'; needComma = true) {
@@ -218,7 +230,7 @@ public class JsonReader {
         return result;
     }
 
-    public Object readObject() throws IOException, ClassNotFoundException {
+    public Object readObject() throws IOException {
         switch (next) {
             case 'n':
                 if (read() != 'n' || read() != 'u' || read() != 'l' || read() != 'l') {

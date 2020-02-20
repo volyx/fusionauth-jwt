@@ -27,7 +27,7 @@ public class PlainObjectMapper {
 			try {
 				final JsonReader jsonReader = new JsonReader(bytes);
 				return (T) jsonReader.readMap();
-			} catch (IOException | ClassNotFoundException e) {
+			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		} else {
@@ -39,43 +39,59 @@ public class PlainObjectMapper {
 		final JsonReader jsonReader = new JsonReader(bytes);
 		final JWT jwt = new JWT();
 		try {
-			for (Map.Entry<String, Object> entry : jsonReader.readMap().entrySet()) {
-				switch (entry.getKey()) {
+
+			jsonReader.expect('{', "Expected map");
+			for (boolean needComma = false; jsonReader.skipWhitespace() != '}'; needComma = true) {
+				if (needComma) {
+					jsonReader.expect(',', "Unexpected end of map");
+					jsonReader.skipWhitespace();
+				}
+
+				final String key = jsonReader.readString();
+				jsonReader.skipWhitespace();
+				jsonReader.expect(':', "Expected key-value pair");
+				jsonReader.skipWhitespace();
+
+
+				switch (key) {
 					case "aud":
-						jwt.audience = entry.getValue();
+						jwt.audience = jsonReader.readObject();;
 						break;
 					case "exp":
-						final BigInteger exp = (BigInteger) entry.getValue();
-						if (!exp.equals(BigInteger.ZERO)) {
-							jwt.expiration = deserializeZonedDateTime(exp.longValue());
+						final long exp = jsonReader.readLong();
+						if (exp != 0) {
+							jwt.expiration = deserializeZonedDateTime(exp);
 						}
 						break;
 					case "iat":
-						final BigInteger iat = (BigInteger) entry.getValue();
-						if (!iat.equals(BigInteger.ZERO)) {
-							jwt.issuedAt = deserializeZonedDateTime(iat.longValue());
+						final long iat = jsonReader.readLong();
+						if (iat != 0) {
+							jwt.issuedAt = deserializeZonedDateTime(iat);
 						}
 						break;
 					case "iss":
-						jwt.issuer = (String) entry.getValue();
+						jwt.issuer = jsonReader.readString();
 						break;
 					case "nbf":
-						final BigInteger nbf = (BigInteger) entry.getValue();
-						if (!nbf.equals(BigInteger.ZERO)) {
-							jwt.notBefore = deserializeZonedDateTime(nbf.longValue());
+						final long nbf = jsonReader.readLong();
+						if (nbf != 0) {
+							jwt.notBefore = deserializeZonedDateTime(nbf);
 						}
 						break;
 					case "sub":
-						jwt.subject = (String) entry.getValue();
+						jwt.subject = jsonReader.readString();
 						break;
 					case "jti":
-						jwt.uniqueId = (String) entry.getValue();
+						jwt.uniqueId = jsonReader.readString();
 						break;
 					default:
-						jwt.otherClaims.put(entry.getKey(), entry.getValue());
+						jwt.otherClaims.put(key, jsonReader.readObject());
 				}
 			}
-		} catch (IOException | ClassNotFoundException e) {
+			jsonReader.read();
+
+
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		return jwt;
@@ -85,19 +101,34 @@ public class PlainObjectMapper {
 		final Header header = new Header();
 		final JsonReader jsonReader = new JsonReader(bytes);
 		try {
-			for (Map.Entry<String, Object> entry : jsonReader.readMap().entrySet()) {
-				switch (entry.getKey()) {
+
+			jsonReader.expect('{', "Expected map");
+			for (boolean needComma = false; jsonReader.skipWhitespace() != '}'; needComma = true) {
+				if (needComma) {
+					jsonReader.expect(',', "Unexpected end of map");
+					jsonReader.skipWhitespace();
+				}
+
+				String key = jsonReader.readString();
+				jsonReader.skipWhitespace();
+				jsonReader.expect(':', "Expected key-value pair");
+				jsonReader.skipWhitespace();
+				final Object value = jsonReader.readObject();
+
+				switch (key) {
 					case "alg":
-						header.algorithm = Algorithm.valueOf(entry.getValue().toString());
+						header.algorithm = Algorithm.valueOf(value.toString());
 						break;
 					case "typ":
-						header.type = Type.valueOf(entry.getValue().toString());
+						header.type = Type.valueOf(value.toString());
 						break;
 					default:
-						header.properties.put(entry.getKey(), entry.getValue().toString());
+						header.properties.put(key, value.toString());
 				}
 			}
-		} catch (IOException | ClassNotFoundException e) {
+			jsonReader.read();
+
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		return header;
